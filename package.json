@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "pull": "node src/pull.ts",
     "pick-remote-models": "node src/pick-remote-models.ts",
+    "hf-upload": "cp README.md dataset/README.md && hf upload julien-c/synthtraces dataset . --type dataset --exclude '.git/*'",
     "typecheck": "tsc --noEmit",
     "format": "oxfmt --write src",
     "format:check": "oxfmt --check src",
