@@ -18,7 +18,7 @@ await (async () => {
 				const repo = pick(TOP_HF_REPOS);
 				const sessionFile = await runSession({
 					agentModelId: pick(agentModels),
-					userModelId: pick(LOCAL_MODELS),
+					userModelId: pick([...LOCAL_MODELS[0]]),
 					repo,
 					startingPrompt: `${repo}: ${pick(STARTING_QUESTIONS)}`,
 				});

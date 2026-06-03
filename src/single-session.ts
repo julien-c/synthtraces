@@ -200,6 +200,12 @@ export async function runSession({
 				process.stdout.write(event.assistantMessageEvent.delta);
 			}
 		});
+		// User agent text in green, to tell the two speakers apart in the stream.
+		userSession.subscribe((event) => {
+			if (event.type === "message_update" && event.assistantMessageEvent.type === "text_delta") {
+				process.stdout.write(`\x1b[32m${event.assistantMessageEvent.delta}\x1b[0m`);
+			}
+		});
 	}
 
 	let message = startingPrompt;
