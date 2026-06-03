@@ -12,6 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
 	type HfRepo,
+	HF_ROUTER_BASE_URL,
 	LLAMA_BASE_URL,
 	LOCAL_MODELS,
 	MAX_NUMBER_OF_TURNS_PER_SESSION,
@@ -79,6 +80,25 @@ export async function createRespondingAgent(modelId: string, repo: HfRepo) {
 	const cwd = path.join(PATH_REPOS, repo);
 	const authStorage = AuthStorage.create();
 	const modelRegistry = ModelRegistry.create(authStorage);
+	// The router model IDs picked by `pick-remote-models` (see `remote-models.md`) are not in
+	// pi's built-in `huggingface` catalog, so register the picked model against the HF router.
+	modelRegistry.registerProvider(AGENT_PROVIDER, {
+		baseUrl: HF_ROUTER_BASE_URL,
+		apiKey: process.env.HF_TOKEN,
+		api: "openai-completions",
+		models: [
+			{
+				id: modelId,
+				name: modelId,
+				api: "openai-completions",
+				reasoning: false,
+				input: ["text"],
+				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+				contextWindow: 32768,
+				maxTokens: 4096,
+			},
+		],
+	});
 	const model = modelRegistry.find(AGENT_PROVIDER, modelId);
 	if (!model) {
 		throw new Error(`Model ${AGENT_PROVIDER}/${modelId} not found in the model registry.`);

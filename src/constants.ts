@@ -3,6 +3,9 @@ import path from "node:path";
 /** Base URL of the local llama.cpp OpenAI-compatible server. */
 export const LLAMA_BASE_URL = process.env.LLAMA_BASE_URL ?? "http://localhost:8080/v1";
 
+/** Base URL of the Hugging Face router, OpenAI-compatible endpoint. */
+export const HF_ROUTER_BASE_URL = "https://router.huggingface.co/v1";
+
 /** Local models served via llama.cpp. */
 export const LOCAL_MODELS: string[] = [
 	"ggml-org/Qwen3.6-27B-GGUF:Q8_0",
