@@ -9,6 +9,8 @@ tags:
 
 # SynthTraces
 
+![synthtraces-banner](https://cdn-uploads.huggingface.co/production/uploads/5dd96eb166059660ed1ee413/0KEiR1V6QfFU3jzMpvqlr.png)
+
 A minimal codebase to generate **synthetic coding agent session traces** using [Pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent).
 
 Each session pairs **two models** working inside one of the project codebases:
