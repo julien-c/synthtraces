@@ -4,10 +4,13 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "pull": "node src/pull.ts",
+    "pick-remote-models": "node src/pick-remote-models.ts",
+    "typecheck": "tsc --noEmit",
     "format": "oxfmt --write src",
     "format:check": "oxfmt --check src",
     "lint": "oxlint -c oxlint.json --fix src",
@@ -18,5 +21,8 @@
     "@types/node": "^25.9.1",
     "oxfmt": "^0.53.0",
     "oxlint": "^1.68.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
