@@ -15,11 +15,12 @@ await (async () => {
 			const taskNumber = index + 1;
 			console.log(`task ${taskNumber}/${BATCH_SIZE} started`);
 			try {
+				const repo = pick(TOP_HF_REPOS);
 				const sessionFile = await runSession({
 					agentModelId: pick(agentModels),
 					userModelId: pick(LOCAL_MODELS),
-					repo: pick(TOP_HF_REPOS),
-					startingPrompt: pick(STARTING_QUESTIONS),
+					repo,
+					startingPrompt: `${repo}: ${pick(STARTING_QUESTIONS)}`,
 				});
 				console.log(`task ${taskNumber}/${BATCH_SIZE} completed — ${sessionFile}`);
 			} catch (error) {
