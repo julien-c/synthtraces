@@ -1,2 +1,6 @@
 node_modules
 dist
+repos
+
+# HF dataset repo where session traces are stored
+dataset
