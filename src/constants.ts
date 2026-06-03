@@ -19,8 +19,8 @@ export const PATH_OUTPUT_DATASET = path.resolve("dataset");
 /** Number of remote models to pick from the HF router. */
 export const N_REMOTE_MODELS = 20;
 
-/** Path of the generated [model, provider] list. */
-export const REMOTE_MODELS_FILE = path.resolve("remote-models.json");
+/** Path of the generated model/provider table. */
+export const REMOTE_MODELS_FILE = path.resolve("remote-models.md");
 
 /** Maximum number of agent turns per session. */
 export const MAX_NUMBER_OF_TURNS_PER_SESSION = 5;

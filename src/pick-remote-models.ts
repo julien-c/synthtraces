@@ -36,6 +36,11 @@ await (async () => {
 		}
 	}
 
-	await writeFile(REMOTE_MODELS_FILE, `${JSON.stringify(picked, null, 2)}\n`);
+	const table = [
+		"| # | Model | Provider |",
+		"| --- | --- | --- |",
+		...picked.map(([model, provider], i) => `| ${i + 1} | \`${model}\` | ${provider} |`),
+	].join("\n");
+	await writeFile(REMOTE_MODELS_FILE, `${table}\n`);
 	console.log(`✓ wrote ${picked.length} [model, provider] pairs to ${REMOTE_MODELS_FILE}`);
 })();
