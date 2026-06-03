@@ -3,7 +3,7 @@
  * Results are returned in the same order as `items`.
  */
 export async function promisesQueue<T, R>(
-	items: T[],
+	items: readonly T[],
 	worker: (item: T, index: number) => Promise<R>,
 	concurrency: number,
 ): Promise<R[]> {

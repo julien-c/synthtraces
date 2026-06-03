@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { PATH_REPOS, TOP_HF_REPOS } from "./constants.ts";
+import { type HfRepo, PATH_REPOS, TOP_HF_REPOS } from "./constants.ts";
 import { promisesQueue } from "./lib/utils.ts";
 
 const MAX_CONCURRENCY = 10;
@@ -49,7 +49,7 @@ await (async () => {
 		MAX_CONCURRENCY,
 	);
 
-	const failures = results.filter((name): name is string => name !== null);
+	const failures = results.filter((name): name is HfRepo => name !== null);
 	if (failures.length > 0) {
 		console.error(`\nFailed: ${failures.join(", ")}`);
 		process.exit(1);

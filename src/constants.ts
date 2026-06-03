@@ -26,7 +26,7 @@ export const REMOTE_MODELS_FILE = path.resolve("remote-models.md");
 export const MAX_NUMBER_OF_TURNS_PER_SESSION = 5;
 
 /** Project codebases the agent is harnessed on (cloned into {@link PATH_REPOS}). */
-export const TOP_HF_REPOS: string[] = [
+export const TOP_HF_REPOS = [
 	"transformers",
 	"pytorch-image-models",
 	"diffusers",
@@ -47,7 +47,10 @@ export const TOP_HF_REPOS: string[] = [
 	"parler-tts",
 	"nanoVLM",
 	"speech-to-speech",
-];
+] as const;
+
+/** A single repo name drawn from {@link TOP_HF_REPOS}. */
+export type HfRepo = (typeof TOP_HF_REPOS)[number];
 
 /** Pool of opening questions the agent picks from to start a session. */
 export const STARTING_QUESTIONS: string[] = [
