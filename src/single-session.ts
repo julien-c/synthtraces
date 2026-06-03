@@ -34,12 +34,21 @@ const AGENT_REPO: HfRepo = "huggingface_hub";
 /** Local provider name for the llama-server, OpenAI-compatible endpoint. */
 const USER_PROVIDER = "llama";
 
+/** System prompt steering the user agent to behave like a human user asking simple questions. */
+const USER_SYSTEM_PROMPT =
+	"You are role-playing as a human user who is curious about a codebase but is not an expert. " +
+	"Ask very simple, short questions about it, one at a time. When you receive an answer, reply " +
+	"with only your next simple question — no preamble, commentary, or quotes.";
+
 /**
  * An empty resource loader: discovers nothing from the machine — no extensions, skills,
- * prompts, themes, context files, or custom system prompt — so sessions run against pi's
- * default prompt and are reproducible.
+ * prompts, themes, or context files — so sessions are reproducible. An optional
+ * `systemPrompt` replaces pi's default; when omitted, pi's default prompt is used.
  */
-async function createEmptyResourceLoader(cwd: string): Promise<DefaultResourceLoader> {
+async function createEmptyResourceLoader(
+	cwd: string,
+	systemPrompt?: string,
+): Promise<DefaultResourceLoader> {
 	const loader = new DefaultResourceLoader({
 		cwd,
 		agentDir: getAgentDir(),
@@ -48,7 +57,7 @@ async function createEmptyResourceLoader(cwd: string): Promise<DefaultResourceLo
 		noPromptTemplates: true,
 		noThemes: true,
 		noContextFiles: true,
-		systemPromptOverride: () => undefined,
+		systemPromptOverride: () => systemPrompt,
 		appendSystemPromptOverride: () => [],
 	});
 	await loader.reload();
@@ -119,11 +128,12 @@ export async function createUserAgent(modelId: string) {
 	const { session } = await createAgentSession({
 		cwd,
 		model,
+		thinkingLevel: "off",
 		authStorage,
 		modelRegistry,
 		settingsManager: SettingsManager.inMemory({ compaction: { enabled: false } }),
 		noTools: "all",
-		resourceLoader: await createEmptyResourceLoader(cwd),
+		resourceLoader: await createEmptyResourceLoader(cwd, USER_SYSTEM_PROMPT),
 		sessionManager: SessionManager.inMemory(cwd),
 	});
 	return session;
