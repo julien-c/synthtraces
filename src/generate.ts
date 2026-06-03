@@ -4,7 +4,7 @@ import { pick, promisesQueue } from "./lib/utils.ts";
 import { runSession } from "./single-session.ts";
 
 const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 100;
-const CONCURRENCY = 20;
+const CONCURRENCY = Number(process.env.CONCURRENCY) || 20;
 
 await (async () => {
 	const agentModels = await readAgentModels();
