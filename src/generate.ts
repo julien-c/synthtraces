@@ -53,4 +53,8 @@ await (async () => {
 		},
 		CONCURRENCY,
 	);
+
+	// Orphaned timed-out sessions keep the event loop alive; force a clean exit
+	// once every task has been accounted for.
+	process.exit(0);
 })();
