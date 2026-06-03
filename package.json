@@ -1,0 +1,22 @@
+{
+  "name": "synthtraces",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "oxfmt --write src",
+    "format:check": "oxfmt --check src",
+    "lint": "oxlint -c oxlint.json --fix src",
+    "lint:check": "oxlint -c oxlint.json src"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.78.0",
+    "@types/node": "^25.9.1",
+    "oxfmt": "^0.53.0",
+    "oxlint": "^1.68.0"
+  }
+}
