@@ -16,6 +16,9 @@ export const PATH_REPOS = path.resolve("repos");
 /** Where generated synthetic-trace datasets are written. */
 export const PATH_OUTPUT_DATASET = path.resolve("dataset");
 
+/** Where session traces are written, inside the dataset repo. */
+export const PATH_SESSIONS = path.join(PATH_OUTPUT_DATASET, "sessions");
+
 /** Number of remote models to pick from the HF router. */
 export const N_REMOTE_MODELS = 20;
 
@@ -47,6 +50,8 @@ export const TOP_HF_REPOS = [
 	"parler-tts",
 	"nanoVLM",
 	"speech-to-speech",
+	"huggingface_hub",
+	"huggingface.js",
 ] as const;
 
 /** A single repo name drawn from {@link TOP_HF_REPOS}. */
