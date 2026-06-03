@@ -26,7 +26,10 @@ const AGENT_PROVIDER = "huggingface";
 const AGENT_MODEL_ID = "deepseek-ai/DeepSeek-V4-Pro";
 
 /** Default Pi coding-agent tools. */
-const AGENT_TOOLS = ["read", "write", "edit", "bash"];
+export const AGENT_TOOLS = ["read", "write", "edit", "bash"];
+
+/** Read-only-ish tool set: inspect files and run commands, but no file mutations. */
+const AGENT_TOOLS_READ_AND_BASH = ["read", "bash"];
 
 /** Repo the agent operates on — one of {@link TOP_HF_REPOS}, cloned under {@link PATH_REPOS} (hardcoded for now). */
 const AGENT_REPO: HfRepo = "huggingface_hub";
@@ -87,7 +90,7 @@ export async function createRespondingAgent(modelId: string) {
 		authStorage,
 		modelRegistry,
 		settingsManager: SettingsManager.inMemory({ compaction: { enabled: false } }),
-		tools: AGENT_TOOLS,
+		tools: AGENT_TOOLS_READ_AND_BASH,
 		resourceLoader: await createEmptyResourceLoader(cwd),
 		sessionManager: SessionManager.create(cwd, path.join(PATH_SESSIONS, AGENT_REPO)),
 	});
