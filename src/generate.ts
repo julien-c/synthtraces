@@ -3,7 +3,7 @@ import { readAgentModels } from "./lib/remote-models.ts";
 import { pick, promisesQueue } from "./lib/utils.ts";
 import { runSession } from "./single-session.ts";
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = Number(process.env.BATCH_SIZE) || 100;
 const CONCURRENCY = 20;
 
 await (async () => {
