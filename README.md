@@ -13,7 +13,7 @@ A minimal codebase to generate **synthetic coding agent session traces** using [
 
 Each session pairs **two models** working inside one of the project codebases:
 
-- a **remotely hosted open model** (e.g. `deepseek-ai/DeepSeek-V4-Pro`, `openai/gpt-oss-120b`, `Qwen/Qwen3.6-27B`) backs the **coding agent**;
+- a **remotely hosted open model** (e.g. `deepseek-ai/DeepSeek-V4-Pro`, `openai/gpt-oss-120b`, `Qwen/Qwen3.6-27B`) backs the **coding agent**, equipped with the default Pi tools — `read`, `write`, `edit`, and `bash`;
 - a **local model** running in llama.cpp plays the **user**, opening with one of the starting questions and driving the conversation.
 
 The full exchange is recorded as a trace. The dataset is the cartesian product of every agent model × user model × codebase × starting question.
@@ -27,6 +27,29 @@ The full exchange is recorded as a trace. The dataset is the cartesian product o
 | Project codebases                    | 20         | `transformers`, `diffusers`, `lerobot`, `peft`, `candle`, …                                                         |
 | Starting questions                   | 20         | _"How do I run this code?"_, _"How is CI set up in this repo?"_, _"What recent changes were made and why?"_, …      |
 | **Total sessions**                   | **24,000** | **20 × 3 × 20 × 20**                                                                                                |
+
+## How a session works
+
+```text
+           1 of 20 starting questions
+                        │
+                        ▼
+        ┌────────────────────────────────┐
+        │  USER MODEL · local, llama.cpp │   plays the user
+        └───────────────┬────────────────┘
+                        │   prompt ↔ reply  (≤ N turns)
+        ┌───────────────┴────────────────┐
+        │  AGENT MODEL · remote, open    │   the coding agent
+        │  ( one of 20 router models )   │
+        └───────────────┬────────────────┘
+                        │   reads · edits · runs
+        ┌───────────────┴────────────────┐
+        │  PROJECT CODEBASE  (1 of 20)   │   cloned locally
+        └───────────────┬────────────────┘
+                        │
+                        ▼
+              session trace  ──▶  dataset   (1 of 24,000)
+```
 
 ## Final Statistics
 
