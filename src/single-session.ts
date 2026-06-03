@@ -69,14 +69,14 @@ async function createEmptyResourceLoader(
 
 /**
  * The coding agent that answers — backed by a remotely hosted open model on the Hugging
- * Face router, with the default tools, operating inside the cloned {@link AGENT_REPO}.
- * Its trace is persisted under `dataset/sessions/<repo>/`.
+ * Face router, operating inside the given repo cloned under {@link PATH_REPOS}. Its trace
+ * is persisted under `dataset/sessions/<repo>/`.
  */
-export async function createRespondingAgent(modelId: string) {
+export async function createRespondingAgent(modelId: string, repo: HfRepo) {
 	if (!process.env.HF_TOKEN) {
 		throw new Error("HF_TOKEN is not set — required to reach the Hugging Face provider.");
 	}
-	const cwd = path.join(PATH_REPOS, AGENT_REPO);
+	const cwd = path.join(PATH_REPOS, repo);
 	const authStorage = AuthStorage.create();
 	const modelRegistry = ModelRegistry.create(authStorage);
 	const model = modelRegistry.find(AGENT_PROVIDER, modelId);
@@ -92,7 +92,7 @@ export async function createRespondingAgent(modelId: string) {
 		settingsManager: SettingsManager.inMemory({ compaction: { enabled: false } }),
 		tools: AGENT_TOOLS_READ_AND_BASH,
 		resourceLoader: await createEmptyResourceLoader(cwd),
-		sessionManager: SessionManager.create(cwd, path.join(PATH_SESSIONS, AGENT_REPO)),
+		sessionManager: SessionManager.create(cwd, path.join(PATH_SESSIONS, repo)),
 	});
 	return session;
 }
@@ -151,38 +151,67 @@ function lastAssistantText(session: AgentSession): string {
 	return last.content.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("");
 }
 
-// Run the conversation loop only when this file is executed directly, not when imported.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	await (async () => {
-		const respondingSession = await createRespondingAgent(AGENT_MODEL_ID);
-		const userSession = await createUserAgent(LOCAL_MODELS[0]);
+/** Inputs that define one synthetic session. */
+export interface SessionParams {
+	agentModelId: string;
+	userModelId: string;
+	repo: HfRepo;
+	startingPrompt: string;
+}
 
-		// Stream the responding agent's reply to stdout (debug only).
-		if (process.env.DEBUG === "1") {
-			respondingSession.subscribe((event) => {
-				if (event.type === "message_update" && event.assistantMessageEvent.type === "text_delta") {
-					process.stdout.write(event.assistantMessageEvent.delta);
-				}
-			});
-		}
+/**
+ * Run one full conversation: the coding agent (HF router) answers; the user agent (local
+ * llama-server) drives the follow-ups, for {@link MAX_NUMBER_OF_TURNS_PER_SESSION} turns.
+ * Returns the path of the persisted trace. Per-turn output is shown only when `DEBUG=1`.
+ */
+export async function runSession({
+	agentModelId,
+	userModelId,
+	repo,
+	startingPrompt,
+}: SessionParams): Promise<string | undefined> {
+	const respondingSession = await createRespondingAgent(agentModelId, repo);
+	const userSession = await createUserAgent(userModelId);
 
-		let message = "What are the main characteristics of this codebase?";
-		for (let turn = 1; turn <= MAX_NUMBER_OF_TURNS_PER_SESSION; turn++) {
-			console.log(`\n\n=== turn ${turn}/${MAX_NUMBER_OF_TURNS_PER_SESSION} — user:\n${message}\n`);
-
-			// The coding agent answers the user's message.
-			await respondingSession.prompt(message);
-			if (turn === MAX_NUMBER_OF_TURNS_PER_SESSION) {
-				break;
+	const debug = process.env.DEBUG === "1";
+	if (debug) {
+		respondingSession.subscribe((event) => {
+			if (event.type === "message_update" && event.assistantMessageEvent.type === "text_delta") {
+				process.stdout.write(event.assistantMessageEvent.delta);
 			}
+		});
+	}
 
-			// The user agent reacts to the answer to produce the next user message.
-			await userSession.prompt(lastAssistantText(respondingSession));
-			message = lastAssistantText(userSession);
+	let message = startingPrompt;
+	for (let turn = 1; turn <= MAX_NUMBER_OF_TURNS_PER_SESSION; turn++) {
+		if (debug) {
+			console.log(`\n\n=== turn ${turn}/${MAX_NUMBER_OF_TURNS_PER_SESSION} — user:\n${message}\n`);
 		}
 
-		console.log(`\n\nTrace saved to ${respondingSession.sessionFile}`);
-		respondingSession.dispose();
-		userSession.dispose();
-	})();
+		// The coding agent answers the user's message.
+		await respondingSession.prompt(message);
+		if (turn === MAX_NUMBER_OF_TURNS_PER_SESSION) {
+			break;
+		}
+
+		// The user agent reacts to the answer to produce the next user message.
+		await userSession.prompt(lastAssistantText(respondingSession));
+		message = lastAssistantText(userSession);
+	}
+
+	const sessionFile = respondingSession.sessionFile;
+	respondingSession.dispose();
+	userSession.dispose();
+	return sessionFile;
+}
+
+// Run a single example session only when this file is executed directly, not when imported.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	const sessionFile = await runSession({
+		agentModelId: AGENT_MODEL_ID,
+		userModelId: LOCAL_MODELS[0],
+		repo: AGENT_REPO,
+		startingPrompt: "What are the main characteristics of this codebase?",
+	});
+	console.log(`\n\nTrace saved to ${sessionFile}`);
 }

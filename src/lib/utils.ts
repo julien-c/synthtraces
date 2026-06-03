@@ -1,3 +1,8 @@
+/** Pick a uniformly random element. */
+export function pick<T>(items: readonly T[]): T {
+	return items[Math.floor(Math.random() * items.length)];
+}
+
 /**
  * Map over `items` running `worker` with at most `concurrency` tasks in flight.
  * Results are returned in the same order as `items`.
