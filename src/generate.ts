@@ -40,7 +40,7 @@ await (async () => {
 				const sessionFile = await withTimeout(
 					runSession({
 						agentModelId: pick(agentModels),
-						userModelId: pick([...LOCAL_MODELS[0]]),
+						userModelId: pick([LOCAL_MODELS[0]]),
 						repo,
 						startingPrompt: `${repo}: ${pick(STARTING_QUESTIONS)}`,
 					}),
